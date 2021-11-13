@@ -837,3 +837,211 @@ const SFooter = styled.footer`
     width: 100%;
 `;
 ```
+
+## Pageの作成
+
++ `src/components/pages`ディレクトリを作成<br>
+
++ `src/components/pages/Top.jsx`コンポーネントを作成<br>
+
+```
+import styled from "styled-components"
+
+export const Top = () => {
+    return (
+        <SContainer>
+            <h2>TOPページです</h2>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`
+```
+
++ `src/components/pages/Users.jsx`コンポーネントを作成<br>
+
+```
+import styled from "styled-components"
+
+export const Users = () => {
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`
+```
+
++ `src/router`ディレクトリを作成<br>
+
++ `src/router/Router.jsx`コンポーネントを作成<br>
+
+```
+import { BrowserRouter, Route, Switch } from "react-router-dom"
+import { Top } from "../components/pages/Top"
+import { Users } from "../components/pages/Users"
+
+export const Router = () => {
+    return (
+        <BrowserRouter>
+            <Switch>
+                <Route exact path="/">
+                    <Top />
+                </Route>
+                <Route path="/users">
+                    <Users />
+                </Route>
+            </Switch>
+        </BrowserRouter>
+    )
+}
+```
+
+`App.js`を編集<br>
+
+```
+import './App.css';
+import { Router } from './router/Router';
+
+const user = {
+  name: "たかき",
+  image: "https://source.unsplash.com/JBrbzg5N7Go",
+  email: "takaki55730317@gmail.com",
+  phone: "090-1111-2222",
+  company: {
+    name: "テスト株式会社",
+  },
+  website: "https://google.com"
+}
+
+function App() {
+  return (
+    <Router />
+  );
+}
+
+export default App;
+```
+
++ `src/route/Router.jsx`を編集<br>
+
+```
+import { BrowserRouter, Route, Switch } from "react-router-dom"
+import { Top } from "../components/pages/Top"
+import { Users } from "../components/pages/Users"
+import { DefaultLayout } from "../components/templates/DefaultLayout"
+import { HeaderOnly } from "../components/templates/HeaderOnly"
+
+export const Router = () => {
+    return (
+        <BrowserRouter>
+            <Switch>
+                <Route exact path="/">
+                    <DefaultLayout>
+                        <Top />
+                    </DefaultLayout>
+                </Route>
+                <Route path="/users">
+                    <HeaderOnly>
+                        <Users />
+                    </HeaderOnly>
+                </Route>
+            </Switch>
+        </BrowserRouter>
+    )
+}
+```
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import styled from "styled-components"
+import { SearchInput } from "../molecules/SearchInput"
+
+export const Users = () => {
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+```
+
+`App.js`を編集<br>
+
+```
+import './App.css';
+import { Router } from './router/Router';
+
+function App() {
+  return (
+    <Router />
+  );
+}
+
+export default App;
+```
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import styled from "styled-components"
+import { SearchInput } from "../molecules/SearchInput"
+import { UserCard } from "../organism/user/UserCard"
+
+const users = [...Array(10).keys()].map((val) => {
+    return {
+        id: val,
+        name: `たかき${val}`,
+        image: "https://source.unsplash.com/JBrbzg5N7Go",
+        email: "takaki55730317@gmail.com",
+        phone: "090-1111-2222",
+        company: {
+            name: "テスト株式会社",
+        },
+        website: "https://google.com"
+    }
+})
+
+export const Users = () => {
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+            <SUserArea>
+                {users.map((user) => (
+                    <UserCard key={user.id} user={user} />
+                ))}
+            </SUserArea>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+const SUserArea = styled.div`
+    padding-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+`
+```
