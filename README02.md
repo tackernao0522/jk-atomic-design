@@ -300,3 +300,259 @@ const SButtonWrapper = styled.div`
     padding-left: 8px;
 `;
 ```
+
+## Organismの作成1 (ユーザーカード)
+
++ `src/components/organism`ディレクトリを作成<br>
+
++ `src/components/organism/user`ディレクトリを作成<br>
+
++ `src/components/organism/user/UserCard.jsx`コンポーネントを作成<br>
+
+```
+export const UserCard = () => {
+    return (
+        <div>
+            <img alt="プロフィール" />
+            <p>名前</p>
+            <dl>
+                <dt>メール</dt>
+                <dd>11111@aaa.com</dd>
+                <dt>TEL</dt>
+                <dd>000-9999-88888</dd>
+                <dt>会社名</dt>
+                <dd>ああああああ会社</dd>
+                <dt>WEB</dt>
+                <dd>httttttttt.com</dd>
+            </dl>
+        </div>
+    )
+}
+```
+
++ `App.js`の編集<br>
+
+```
+import './App.css';
+import { PrimaryButton } from './components/atoms/button/PrimaryButton';
+import { SecondaryButton } from './components/atoms/button/SecondaryButton';
+import { SearchInput } from './components/molecules/SearchInput';
+import { UserCard } from './components/organism/user/UserCard';
+
+function App() {
+  return (
+    <div className="App">
+      <PrimaryButton>テスト</PrimaryButton>
+      <SecondaryButton>検索</SecondaryButton>
+      <br />
+      <SearchInput />
+      <UserCard />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Organismの作成2
+
++ `App.css`を空白にしてリセットする<br>
+
++ `index.css`も空白にする<br>
+
++ `https://unsplash.com/`で画像を入手<br>
+
++ `https://unsplash.com/photos/JBrbzg5N7Go`を`https://source.unsplash.com/JBrbzg5N7Go`に書き換える<br>
+
++ `src/components/atoms/card`ディレクトリを作成<br>
+
++ `src/components/atoms/card/Card.jsx`コンポーネントを作成<br>
+
+```
+import styled from "styled-components";
+
+export const Card = (props) => {
+    const { children } = props;
+    return <SCard>{children}</SCard>
+}
+
+const SCard = styled.div`
+    background-color: #fff;
+    box-shadow: #ddd 0px 0px 4px 2px;
+    border-radius: 8px;
+    padding: 16px;
+`;
+```
+
++ `src/organinsm/user/UserCard.jsx`の編集<br>
+
+```
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+
+export const UserCard = (props) => {
+    const { user } = props;
+    return (
+        <Card>
+            <img
+                height={160}
+                width={160}
+                src={user.image}
+                alt={user.name}
+            />
+            <p>{user.name}</p>
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+    }
+`;
+```
+
++ `App.css`を編集<br>
+
+```
+body {
+  background-color: #e4f9f5;
+}
+```
+
++ `src/components/molecules/user`ディレクトリを作成<br>
+
++ `src/components/molecules/user/UserIconWithName.jsx`コンポーネントを作成<br>
+
+```
+export const UserIconWithName = (props) => {
+    const { image, name } = props;
+    return (
+        <div>
+            <img height={160} width={160} src={image} alt={name} />
+            <p>{name}</p>
+        </div>
+    )
+}
+```
+
++ `src/organinsm/user/UserCard.jsx`の編集<br>
+
+```
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = (props) => {
+    const { user } = props;
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} />
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+    }
+`;
+```
+
++ `src/components/molecules/user/UserIconWithName.jsx`にスタイルを当てる<br>
+
+```
+import styled from "styled-components";
+
+export const UserIconWithName = (props) => {
+    const { image, name } = props;
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+```
+
++ `src/organinsm/user/UserCard.jsx`の編集<br>
+
+```
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = (props) => {
+    const { user } = props;
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} />
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+        overflow-wrap: break-word; // 追記
+    }
+`;
+```
