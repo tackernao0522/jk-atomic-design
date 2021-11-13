@@ -55,7 +55,7 @@ ATOMS(原子的な) -> MOLECULES(ATOMSを組み合わせた少し大きめのコ
 + `Twitterの例`<br>
   + 頁遷移毎に表示される各画面<br>
 
-## Atomの作成
+## Atomの作成 (ボタンのみ)
 
 + `$ yarn add react-router-dom@5.3.0 or $ npm install react-router-dom@5.3.0`のインストール<br>
 
@@ -209,5 +209,94 @@ export const SecondaryButton = (props) => {
 
 const SButton = styled(BaseButton)`
     background-color: #11999e;
+`;
+```
+
+## Moleculeの作成 (検索ボタンとテキストボックス)
+
++ `src/components/molecules/`ディレクトリを作成<br>
+
++ `src/components/molecules/SearchInput.jsx`コンポーネントを作成<br>
+
+```
+import { PrimaryButton } from "../atoms/button/PrimaryButton"
+
+export const SearchInput = () => {
+    return (
+        <div>
+            <input />
+            <PrimaryButton>検索</PrimaryButton>
+        </div>
+    )
+}
+```
+
++ `App.js`の編集<br>
+
+```
+import './App.css';
+import { PrimaryButton } from './components/atoms/button/PrimaryButton';
+import { SecondaryButton } from './components/atoms/button/SecondaryButton';
+import { SearchInput } from './components/molecules/SearchInput'; // 追記
+
+function App() {
+  return (
+    <div className="App">
+      <PrimaryButton>テスト</PrimaryButton>
+      <SecondaryButton>検索</SecondaryButton>
+      <br />
+      <SearchInput /> // 追記
+    </div>
+  );
+}
+
+export default App;
+```
+
++ `src/components/atoms/input/Input.jsx`コンポーネントを作成<br>
+
+```
+import styled from "styled-components"
+
+export const Input = (props) => {
+    const { placeholder = "" } = props;
+    return (
+        <SInput type="text" placeholder={placeholder} />
+    )
+}
+
+const SInput = styled.input`
+    padding: 8px 16px;
+    border: solid #ddd 1px;
+    border-radius: 9999px;
+    outline: none;
+`;
+```
+
++ `src/components/molecules/SearchInput.jsx`を編集<br>
+
+```
+import styled from "styled-components"
+import { PrimaryButton } from "../atoms/button/PrimaryButton"
+import { Input } from "../atoms/input/Input"
+
+export const SearchInput = () => {
+    return (
+        <SContainer>
+            <Input placeholder="検索条件を入力" />
+            <SButtonWrapper>
+                <PrimaryButton>検索</PrimaryButton>
+            </SButtonWrapper>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const SButtonWrapper = styled.div`
+    padding-left: 8px;
 `;
 ```
