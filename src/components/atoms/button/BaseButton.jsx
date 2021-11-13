@@ -6,7 +6,6 @@ export const BaseButton = styled.button`
     border: none;
     border-radius: 9999px;
     outline: none;
-    margin-top: 1rem;
     &:hover {
         cursor: pointer;
         opacity: 0.8;
