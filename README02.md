@@ -556,3 +556,284 @@ const SDl = styled.dl`
     }
 `;
 ```
+
+## Templateの作成 (headerとfooter)
+
++ `src/components/templates`ディレクトリを作成<br>
+
++ `src/components/templates/HeaderOnly.jsx`コンポーネントを作成<br>
+
+```
+export const HeaderOnly = (props) => {
+    const { children } = props;
+    return (
+        <>
+            <div style={{ height: "50px", backgroundColor: "red"}}></div>
+            {children}
+        </>
+    )
+}
+```
+
++ `src/components/templates/DefaultLayout.jsx`コンポーネントを作成<br>
+
++ `App.js`を編集<br>
+
+```
+import './App.css';
+import { PrimaryButton } from './components/atoms/button/PrimaryButton';
+import { SecondaryButton } from './components/atoms/button/SecondaryButton';
+import { SearchInput } from './components/molecules/SearchInput';
+import { UserCard } from './components/organism/user/UserCard';
+import { HeaderOnly } from './components/templates/HeaderOnly'; // 追記
+
+const user = {
+  name: "たかき",
+  image: "https://source.unsplash.com/JBrbzg5N7Go",
+  email: "takaki55730317@gmail.com",
+  phone: "090-1111-2222",
+  company: {
+    name: "テスト株式会社",
+  },
+  website: "https://google.com"
+}
+
+function App() {
+  return (
+    <HeaderOnly> // 編集
+      <PrimaryButton>テスト</PrimaryButton>
+      <SecondaryButton>検索</SecondaryButton>
+      <br />
+      <SearchInput />
+      <UserCard user={user} />
+    </HeaderOnly> // 編集
+  );
+}
+
+export default App;
+```
+
++ `src/components/atoms/layout`ディレクトリを作成<br>
+
++ `src/components/atoms/layout/Header.jsx`コンポーネントを作成<br>
+
+```
+import { Link } from "react-router-dom"
+
+export const Header = () => {
+    return (
+        <header>
+            <Link to="/">HOME</Link>
+            <Link to="/users">USERS</Link>
+        </header>
+    )
+}
+```
+
++ `App.css`の編集<br>
+
+```
+body {
+  background-color: #e4f9f5;
+  margin: 0; // 追記
+}
+```
+
++ `src/components/templates/HeaderOnly.jsx`を編集<br>
+
+```
+import { Header } from "../atoms/layout/Header";
+
+export const HeaderOnly = (props) => {
+    const { children } = props;
+    return (
+        <>
+            <Header />
+            {children}
+        </>
+    )
+}
+```
+
++ `App.js`を編集<br>
+
+```
+import { BrowserRouter } from 'react-router-dom'; // 追記
+import './App.css';
+import { PrimaryButton } from './components/atoms/button/PrimaryButton';
+import { SecondaryButton } from './components/atoms/button/SecondaryButton';
+import { SearchInput } from './components/molecules/SearchInput';
+import { UserCard } from './components/organism/user/UserCard';
+import { HeaderOnly } from './components/templates/HeaderOnly';
+
+const user = {
+  name: "たかき",
+  image: "https://source.unsplash.com/JBrbzg5N7Go",
+  email: "takaki55730317@gmail.com",
+  phone: "090-1111-2222",
+  company: {
+    name: "テスト株式会社",
+  },
+  website: "https://google.com"
+}
+
+function App() {
+  return (
+    <BrowserRouter> // 追記
+      <HeaderOnly>
+        <PrimaryButton>テスト</PrimaryButton>
+        <SecondaryButton>検索</SecondaryButton>
+        <br />
+        <SearchInput />
+        <UserCard user={user} />
+      </HeaderOnly>
+    </BrowserRouter> // 追記
+  );
+}
+
+export default App;
+```
+
++ `src/components/atoms/layout/Header.jsx`を編集<br>
+
+```
+import { Link } from "react-router-dom"
+import styled from "styled-components"
+
+export const Header = () => {
+    return (
+        <SHeader>
+            <SLink to="/">HOME</SLink>
+            <SLink to="/users">USERS</SLink>
+        </SHeader>
+    )
+}
+
+const SHeader = styled.header`
+    background-color: #11999e;
+    color: #fff;
+    text-align: center;
+    padding: 8px 0;
+`;
+const SLink = styled(Link)`
+    margin: 0 8px;
+`
+```
+
++ `src/components/atoms/layout/Footer.jsx`コンポーネントを作成<br>
+
+```
+import { Link } from "react-router-dom"
+import styled from "styled-components"
+
+export const Footer = () => {
+    return (
+        <SHeader>
+            <SLink to="/">HOME</SLink>
+            <SLink to="/users">USERS</SLink>
+        </SHeader>
+    )
+}
+
+const SHeader = styled.header`
+    background-color: #11999e;
+    color: #fff;
+    text-align: center;
+    padding: 8px 0;
+`;
+const SLink = styled(Link)`
+    margin: 0 8px;
+`
+```
+
++ `src/components/templates/DefaultLayout.jsx`を編集<br>
+
+```
+import { Footer } from "../atoms/layout/Footer";
+import { Header } from "../atoms/layout/Header";
+
+export const DefaultLayout = (props) => {
+    const { children } = props;
+    return (
+        <>
+            <Header />
+                {children}
+            <Footer />
+        </>
+    )
+}
+```
+
++ `App.js`をテスト編集<br>
+
+```
+import { BrowserRouter } from 'react-router-dom';
+import './App.css';
+import { PrimaryButton } from './components/atoms/button/PrimaryButton';
+import { SecondaryButton } from './components/atoms/button/SecondaryButton';
+import { SearchInput } from './components/molecules/SearchInput';
+import { UserCard } from './components/organism/user/UserCard';
+import { DefaultLayout } from './components/templates/DefaultLayout'; // 追記
+import { HeaderOnly } from './components/templates/HeaderOnly';
+
+const user = {
+  name: "たかき",
+  image: "https://source.unsplash.com/JBrbzg5N7Go",
+  email: "takaki55730317@gmail.com",
+  phone: "090-1111-2222",
+  company: {
+    name: "テスト株式会社",
+  },
+  website: "https://google.com"
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <DefaultLayout> // 編集
+        <PrimaryButton>テスト</PrimaryButton>
+        <SecondaryButton>検索</SecondaryButton>
+        <br />
+        <SearchInput />
+        <UserCard user={user} />
+      </DefaultLayout>
+    </BrowserRouter> // 編集
+  );
+}
+
+export default App;
+```
+
++ `App.css`を編集<br>
+
+```
+body {
+  background-color: #e4f9f5;
+  margin: 0;
+  min-height: 100vh; // 追記
+}
+```
+
++ `src/components/atoms/layout/Footer.js`を編集<br>
+
+```
+import styled from "styled-components"
+
+export const Footer = () => {
+    return (
+        <SFooter>
+            &copy; 2021 test Inc.
+        </SFooter>
+    )
+}
+
+const SFooter = styled.footer`
+    background-color: #11999e;
+    color: #fff;
+    text-align: center;
+    padding: 8px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+`;
+```
