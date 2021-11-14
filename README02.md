@@ -1513,3 +1513,286 @@ const SUserArea = styled.div`
     grid-gap: 20px;
 `
 ```
+
+## Contextでのstate管理(再レンダリングの最適化)
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import React, { useContext } from "react"
+import styled from "styled-components"
+import { UserContext } from "../../providers/UserProvider"
+import { SecondaryButton } from "../atoms/button/SecondaryButton"
+import { SearchInput } from "../molecules/SearchInput"
+import { UserCard } from "../organism/user/UserCard"
+
+const users = [...Array(10).keys()].map((val) => {
+    return {
+        id: val,
+        name: `たかき${val}`,
+        image: "https://source.unsplash.com/JBrbzg5N7Go",
+        email: "takaki55730317@gmail.com",
+        phone: "090-1111-2222",
+        company: {
+            name: "テスト株式会社",
+        },
+        website: "https://google.com"
+    }
+})
+
+export const Users = () => {
+    const { userInfo, setUserInfo } =  useContext(UserContext)
+    const onClickSwitch = () => setUserInfo({ isAdmin: !userInfo.isAdmin });
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+            <br />
+            <SecondaryButton onClick={onClickSwitch}>切り替え</SecondaryButton>
+            <SUserArea>
+                {users.map((user) => (
+                    <UserCard key={user.id} user={user} />
+                ))}
+            </SUserArea>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+const SUserArea = styled.div`
+    padding-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+`
+```
+
++ `src/components/molecules/SearchInput.jsx`を再レンダリングチェック<br>
+
+```
+import styled from "styled-components"
+import { PrimaryButton } from "../atoms/button/PrimaryButton"
+import { Input } from "../atoms/input/Input"
+
+export const SearchInput = () => {
+    console.log('SearchInput'); // 常時レンダリングされてしまっている
+    return (
+        <SContainer>
+            <Input placeholder="検索条件を入力" />
+            <SButtonWrapper>
+                <PrimaryButton>検索</PrimaryButton>
+            </SButtonWrapper>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const SButtonWrapper = styled.div`
+    padding-left: 8px;
+`;
+```
+
++ `src/components/organism/User/UserCard.jsx`を再レンダリングチェック<br>
+
+```
+import React from "react";
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = (props) => {
+    console.log('UserCard'); // 常時レンダリングされてしまっている
+
+    const { user } = props;
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} />
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+        overflow-wrap: break-word;
+    }
+`;
+```
+
++ `src/compoenents/molecures/user/UserIconWithName.jsx`を再レンダリングチェック<br>
+
+```
+import React, { useContext } from "react";
+import styled from "styled-components";
+import { UserContext } from "../../../providers/UserProvider";
+
+export const UserIconWithName = (props) => {
+    console.log("UserIconWithName"); // 再レンダリングされてしまっている
+    const { image, name } = props;
+    const { userInfo } = useContext(UserContext);
+    const isAdmin = userInfo ? userInfo.isAdmin : false
+
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
+
++ `src/components/molecules/SearchInput.jsx`の再レンダリング防止処理<br>
+
+```
+import React, { memo } from "react"; // 追記
+import styled from "styled-components"
+import { PrimaryButton } from "../atoms/button/PrimaryButton"
+import { Input } from "../atoms/input/Input"
+
+export const SearchInput = memo(() => { // 編集
+    console.log('SearchInput');
+    return (
+        <SContainer>
+            <Input placeholder="検索条件を入力" />
+            <SButtonWrapper>
+                <PrimaryButton>検索</PrimaryButton>
+            </SButtonWrapper>
+        </SContainer>
+    )
+})
+
+const SContainer = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const SButtonWrapper = styled.div`
+    padding-left: 8px;
+`;
+```
+
++ `src/components/organism/user/UserCard.jsx`の再レンダリング防止処理<br>
+
+```
+import React, { memo } from "react"; // 編集
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = memo((props) => { // 編集
+    console.log('UserCard');
+    const { user } = props;
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} />
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+})
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+        overflow-wrap: break-word;
+    }
+`;
+```
+
++ `src/components/modlecules/user/UserIconWithName.jsx`の再レンダリング防止処理<br>
+
+```
+import React, { memo, useContext } from "react"; // 編集
+import styled from "styled-components";
+import { UserContext } from "../../../providers/UserProvider";
+
+export const UserIconWithName = memo((props) => { // 編集
+    console.log("UserIconWithName");
+    const { image, name } = props;
+    const { userInfo } = useContext(UserContext);
+    const isAdmin = userInfo ? userInfo.isAdmin : false
+
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+})
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
