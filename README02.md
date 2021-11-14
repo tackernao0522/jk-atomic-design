@@ -1056,3 +1056,187 @@ const SUserArea = styled.div`
 
 + `要素の関心を意識`<br>
   「何に関心があるコンポーネントなのか」を意識しながら分割したりpropsを定義したりする<br>
+
+## State管理のツライ例
+
++ `src/components/pages/Top.jsx`を編集<br>
+
+```
+import React from "react"
+import { useHistory } from "react-router-dom"
+import styled from "styled-components"
+import { SecondaryButton } from "../atoms/button/SecondaryButton"
+
+
+export const Top = () => {
+    const history = useHistory();
+
+    const onClickAdmin = () => history.push({ pathname: "/users", state: { isAdmin: true } })
+    const onClickGeneral = () => ({ pathname: "/users", state: { isAdmin: false } })
+
+    return (
+        <SContainer>
+            <h2>TOPページです</h2>
+            <SecondaryButton onClick={onClickAdmin}>管理者ユーザー</SecondaryButton>
+            <br />
+            <br />
+            <SecondaryButton onClick={onClickGeneral}>一般ユーザー</SecondaryButton>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`
+```
+
++ `src/components/atoms/SecondaryButton.jsx`を編集<br>
+
+```
+import styled from "styled-components";
+import React from "react";
+import styled from "styled-components";
+import { BaseButton } from "./BaseButton";
+
+export const SecondaryButton = (props) => {
+    const { children, onClick } = props;
+    return (
+        <SButton onClick={onClick}>{children}</SButton>
+    )
+}
+
+const SButton = styled(BaseButton)`
+    background-color: #11999e;
+`;
+```
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import React from "react"
+import styled from "styled-components"
+import { useLocation } from "react-router-dom"
+import { SearchInput } from "../molecules/SearchInput"
+import { UserCard } from "../organism/user/UserCard"
+
+const users = [...Array(10).keys()].map((val) => {
+    return {
+        id: val,
+        name: `たかき${val}`,
+        image: "https://source.unsplash.com/JBrbzg5N7Go",
+        email: "takaki55730317@gmail.com",
+        phone: "090-1111-2222",
+        company: {
+            name: "テスト株式会社",
+        },
+        website: "https://google.com"
+    }
+})
+
+export const Users = () => {
+    const { state } = useLocation();
+    // console.log(state);
+    const isAdmin = state ? state.isAdmin : false;
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+            <SUserArea>
+                {users.map((user) => (
+                    <UserCard key={user.id} user={user} isAdmin={isAdmin} />
+                ))}
+            </SUserArea>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+const SUserArea = styled.div`
+    padding-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+`
+```
+
++ `src/components/organism/user/UserCard.jsx`を編集<br>
+
+```
+import React from "react";
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = (props) => {
+    const { user, isAdmin } = props;
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} isAdmin={isAdmin} /> // 編集
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+        overflow-wrap: break-word;
+    }
+`;
+```
+
++ `src/components/molecules/user/UserIconWithName.jsx`を編集<br>
+
+```
+import React from "react";
+import styled from "styled-components";
+
+export const UserIconWithName = (props) => {
+    const { image, name, isAdmin } = props;
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
