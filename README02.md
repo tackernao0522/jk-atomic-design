@@ -1240,3 +1240,85 @@ const SEdit = styled.span`
     cursor: pointer;
 `
 ```
+
+## ContextでのState管理(基本的な使い方)
+
++ `src/providers`ディレクトリを作成<br>
+
++ `src/providers/UserProvider.jsx`コンポーネントを作成<br>
+
+```
+import React, { createContext } from "react"
+
+export const UserContext = createContext({});
+
+export const UserProvider = (props) => {
+    const { children } = props;
+    const contextName = "たかき"
+
+    return (
+        <UserContext.Provider value={{ contextName }}>
+            {children}
+        </UserContext.Provider>
+    )
+}
+```
+
++ `src/App.js`の編集<br>
+
+```
+import React from 'react';
+import './App.css';
+import { UserProvider } from './providers/UserProvider';
+import { Router } from './router/Router';
+
+function App() {
+  return (
+    <UserProvider>
+      <Router />
+    </UserProvider>
+  );
+}
+
+export default App;
+```
+
++ `src/components/molecules/user/UserIconWithName.jsx`を編集<br>
+
+```
+import React, { useContext } from "react"; // 編集
+import styled from "styled-components";
+import { UserContext } from "../../../providers/UserProvider"; // 追記
+
+export const UserIconWithName = (props) => {
+    const { image, name, isAdmin } = props;
+    const context = useContext(UserContext); // 追記
+    // console.log(context);
+
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
