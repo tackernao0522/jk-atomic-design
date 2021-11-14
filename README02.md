@@ -1796,3 +1796,189 @@ const SEdit = styled.span`
     cursor: pointer;
 `
 ```
+
+## Recoiでのstate管理
+
++ `$ npm install recoilnpm install --save recoil` or `$ yarn add recoil --save recoil`でインストール<br>
+
++ `src/store`ディレクトリを作成<br>
+
++ `src/store/userState.js`ファイルを作成<br>
+
+```
+import { atom } from "recoil";
+
+export const userState = atom({
+    key: "userState",
+    default: { isAdmin: false }
+});
+```
+
++ `App.js`を編集<br>
+
+```
+import React from 'react';
+import { RecoilRoot } from 'recoil'; // 追記
+import './App.css';
+import { UserProvider } from './providers/UserProvider';
+import { Router } from './router/Router';
+
+function App() {
+  return (
+    <RecoilRoot> // 追記
+      <UserProvider>
+        <Router />
+      </UserProvider>
+    </RecoilRoot> // 追記
+  );
+}
+
+export default App;
+```
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import React from "react" // 編集
+import styled from "styled-components"
+// import { UserContext } from "../../providers/UserProvider" // 削除
+import { SecondaryButton } from "../atoms/button/SecondaryButton"
+import { SearchInput } from "../molecules/SearchInput"
+import { UserCard } from "../organism/user/UserCard"
+import { useRecoilState } from "recoil" // 追記
+import { userState } from "../../store/userState" // 追記
+
+const users = [...Array(10).keys()].map((val) => {
+    return {
+        id: val,
+        name: `たかき${val}`,
+        image: "https://source.unsplash.com/JBrbzg5N7Go",
+        email: "takaki55730317@gmail.com",
+        phone: "090-1111-2222",
+        company: {
+            name: "テスト株式会社",
+        },
+        website: "https://google.com"
+    }
+})
+
+export const Users = () => {
+    // const { userInfo, setUserInfo } =  useContext(UserContext)
+    const [userInfo, setUserInfo] = useRecoilState(userState); // 追記
+
+    const onClickSwitch = () => setUserInfo({ isAdmin: !userInfo.isAdmin });
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+            <br />
+            <SecondaryButton onClick={onClickSwitch}>切り替え</SecondaryButton>
+            <SUserArea>
+                {users.map((user) => (
+                    <UserCard key={user.id} user={user} />
+                ))}
+            </SUserArea>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+const SUserArea = styled.div`
+    padding-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+`
+```
+
++ `src/components/molecules/user/UserIconWithName.jsx`を編集<br>
+
+```
+import React, { memo } from "react"; // 編集
+import styled from "styled-components";
+import { useRecoilValue } from "recoil"; // useRecoilValueは値を参照することしかしない
+// import { UserContext } from "../../../providers/UserProvider"; // 必要なし
+import { userState } from "../../../store/userState"; // 追記
+
+export const UserIconWithName = memo((props) => {
+    // console.log("UserIconWithName");
+    const { image, name } = props;
+    // const { userInfo } = useContext(UserContext); // 必要なし
+    const userInfo = useRecoilValue(userState) // 追記
+    const isAdmin = userInfo ? userInfo.isAdmin : false
+
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+})
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
+
++ `src/components/pages/Top.jsx`を編集<br>
+
+```
+import React from "react"
+import { useHistory } from "react-router-dom" // 編集
+import { useSetRecoilState } from "recoil" // useSetRecoilStateはset関数のみを適用
+import styled from "styled-components"
+// import { UserContext } from "../../providers/UserProvider" // 必要なし
+import { userState } from "../../store/userState" // 追記
+import { SecondaryButton } from "../atoms/button/SecondaryButton"
+
+
+export const Top = () => {
+    const history = useHistory();
+    // const { setUserInfo } = useContext(UserContext); // 必要なし
+    const setUserInfo = useSetRecoilState(userState); // 追記
+
+    const onClickAdmin = () => {
+        setUserInfo({ isAdmin: true })
+        history.push("/users")
+    }
+    const onClickGeneral = () => {
+        setUserInfo({ isAdmin: false })
+        history.push("/users")
+    }
+
+    return (
+        <SContainer>
+            <h2>TOPページです</h2>
+            <SecondaryButton onClick={onClickAdmin}>管理者ユーザー</SecondaryButton>
+            <br />
+            <br />
+            <SecondaryButton onClick={onClickGeneral}>一般ユーザー</SecondaryButton>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`
+```
