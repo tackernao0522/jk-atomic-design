@@ -1322,3 +1322,194 @@ const SEdit = styled.span`
     cursor: pointer;
 `
 ```
+
+## Contextでのstate管理(ユーザー情報の設定と参照)
+
++ `src/providers/UserProvider.jsx`を編集<br>
+
+```
+import React, { createContext, useState } from "react" // 編集
+
+export const UserContext = createContext({});
+
+export const UserProvider = (props) => {
+    const { children } = props;
+    const [userInfo, setUserInfo] = useState(null); // 追記
+
+    return (
+        <UserContext.Provider value={{ userInfo, setUserInfo }}> // 編集
+            {children}
+        </UserContext.Provider>
+    )
+}
+```
+
++ `src/components/pages/Top.jsx`を編集<br>
+
+```
+import React, { useContext } from "react"
+import { useHistory } from "react-router-dom"
+import styled from "styled-components"
+import { UserContext } from "../../providers/UserProvider"
+import { SecondaryButton } from "../atoms/button/SecondaryButton"
+
+
+export const Top = () => {
+    const history = useHistory();
+    const { setUserInfo } = useContext(UserContext);
+
+    const onClickAdmin = () => {
+        setUserInfo({ isAdmin: true })
+        history.push("/users")
+    }
+    const onClickGeneral = () => {
+        setUserInfo({ isAdmin: false })
+        history.push("/users")
+    }
+
+    return (
+        <SContainer>
+            <h2>TOPページです</h2>
+            <SecondaryButton onClick={onClickAdmin}>管理者ユーザー</SecondaryButton>
+            <br />
+            <br />
+            <SecondaryButton onClick={onClickGeneral}>一般ユーザー</SecondaryButton>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`
+```
+
++ `src/components/molecules/user/UserIconWithName.jsx`を編集<br>
+
+```
+import React, { useContext } from "react";
+import styled from "styled-components";
+import { UserContext } from "../../../providers/UserProvider";
+
+export const UserIconWithName = (props) => {
+    const { image, name } = props;
+    const { userInfo } = useContext(UserContext);
+    const isAdmin = userInfo ? userInfo.isAdmin : false
+
+    return (
+        <SContainer>
+            <SImg height={160} width={160} src={image} alt={name} />
+            <SName>{name}</SName>
+            {isAdmin && <SEdit>編集</SEdit>}
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    text-align: center;
+`;
+const SImg = styled.img`
+    border-radius: 50%;
+`;
+const SName = styled.p`
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #40514e;
+`;
+const SEdit = styled.span`
+    text-decoration: underline;
+    color: #aaa;
+    cursor: pointer;
+`
+```
+
++ `src/components/organism/user/UserCard.jsx`を編集<br>
+
+```
+import React from "react";
+import styled from "styled-components"
+import { Card } from "../../atoms/card/Card";
+import { UserIconWithName } from "../../molecules/user/UserIconWithName";
+
+export const UserCard = (props) => {
+    const { user } = props; // 編集
+    return (
+        <Card>
+            <UserIconWithName image={user.image} name={user.name} />
+            <SDl>
+                <dt>メール</dt>
+                <dd>{user.email}</dd>
+                <dt>TEL</dt>
+                <dd>{user.phone}</dd>
+                <dt>会社名</dt>
+                <dd>{user.company.name}</dd>
+                <dt>WEB</dt>
+                <dd>{user.website}</dd>
+            </SDl>
+        </Card>
+    )
+}
+
+const SDl = styled.dl`
+    text-align: left;
+    dt {
+        float: left;
+    }
+    dd {
+        padding-left: 32px;
+        padding-bottom: 8px;
+        overflow-wrap: break-word;
+    }
+`;
+```
+
++ `src/components/pages/Users.jsx`を編集<br>
+
+```
+import React from "react"
+import styled from "styled-components"
+import { SearchInput } from "../molecules/SearchInput"
+import { UserCard } from "../organism/user/UserCard"
+
+const users = [...Array(10).keys()].map((val) => {
+    return {
+        id: val,
+        name: `たかき${val}`,
+        image: "https://source.unsplash.com/JBrbzg5N7Go",
+        email: "takaki55730317@gmail.com",
+        phone: "090-1111-2222",
+        company: {
+            name: "テスト株式会社",
+        },
+        website: "https://google.com"
+    }
+})
+
+export const Users = () => {
+    return (
+        <SContainer>
+            <h2>ユーザー一覧</h2>
+            <SearchInput />
+            <SUserArea>
+                {users.map((user) => (
+                    <UserCard key={user.id} user={user} />
+                ))}
+            </SUserArea>
+        </SContainer>
+    )
+}
+
+const SContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+`
+const SUserArea = styled.div`
+    padding-top: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+`
+```
