@@ -1799,7 +1799,7 @@ const SEdit = styled.span`
 
 ## Recoiでのstate管理
 
-+ `$ npm install recoilnpm install --save recoil` or `$ yarn add recoil --save recoil`でインストール<br>
++ `$ npm install --save recoil` or `$ yarn add recoil --save recoil`でインストール<br>
 
 + `src/store`ディレクトリを作成<br>
 
